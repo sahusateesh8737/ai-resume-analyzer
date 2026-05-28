@@ -1,14 +1,19 @@
-FROM node:22-bookworm
+FROM node:22-alpine
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN apt-get update && apt-get install -y chromium \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 RUN npm install --production
 
@@ -17,3 +22,4 @@ COPY . .
 EXPOSE 5000
 
 CMD ["node", "src/index.js"]
+
