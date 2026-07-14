@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: [process.env.FRONTEND_URL, 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json());
@@ -29,10 +29,15 @@ app.use('/api/resume', resumeRoutes);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    // Only listen if not running on Vercel
+    if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    }
   })
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error);
   });
+
+export default app;
